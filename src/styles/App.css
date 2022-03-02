@@ -1,5 +1,5 @@
 .App {
-  height: 100vh;
+  min-height: 100vh;
   background-color: #0d1116;
   text-align: center;
   color: white;
@@ -125,20 +125,6 @@ header {
   justify-content: space-between;
 }
 
-.edit-button {
-  border-radius: 50%;
-  cursor: pointer;
-  margin-left: 3px;
-  top: 20px;
-  border: 0px;
-  font-size: 12px;
-  background-color: transparent;
-}
-
-.edit-icon {
-  width: 12px;
-}
-
 .footer-container {
   display: flex;
   justify-content: center;
@@ -200,18 +186,6 @@ input:focus {
   margin-bottom: 10px;
 }
 
-.tld {
-  position: absolute;
-  font-size: 20px;
-  font-weight: bold;
-  color: white;
-  /* left: -70px; */
-  right: 22px;
-  margin: 0;
-  padding: 0;
-  margin-bottom: 13px;
-}
-
 .nft-list {
   display: flex;
   flex-direction: row;
@@ -253,7 +227,9 @@ input:focus {
 
 .nft-attributes {
   display: flex;
-  flex-wrap: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  max-width: 550px;
 }
 
 .nft-attribute {
