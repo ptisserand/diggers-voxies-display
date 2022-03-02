@@ -10,7 +10,7 @@ const TWITTER_LINK = `https://twitter.com/${TWITTER_HANDLE}`;
 
 const VOXIES_CONTRACT_ADDR = "0xE3435EdBf54b5126E817363900234AdFee5B3cee";
 const INFURA_PROJECT_ID = process.env.REACT_APP_INFURA_PROJECT_ID;
-const TESTING_ADDRESS = '0x56879cc88fa3895C082C22035dB1386DcAc53bba';
+// const TESTING_ADDRESS = '0x56879cc88fa3895C082C22035dB1386DcAc53bba';
 // 0xAB400BE87F78665B4d571a141AC13A4bded2e37C
 
 
@@ -22,23 +22,6 @@ const App = () => {
 
   const [errorAddressMsg, setErrorAddressMsg] = useState('');
   const [tmpAddress, setTmpAddress] = useState('');
-  const [loading, setLoading] = useState(false);
-
-  const provider = new ethers.providers.InfuraProvider(null, INFURA_PROJECT_ID);
-  const contract = new ethers.Contract(VOXIES_CONTRACT_ADDR, contractABI.abi, provider);
-
-  const fetchNftIds = async () => {
-    if (!walletAddress) { return; }
-    console.log("Fetching NFTs for", walletAddress);
-    let uri = await contract.baseURI();
-    let result = await contract.tokensOfOwner(walletAddress);
-    let ids = Array.from(result, r => r.toNumber());
-    ids.sort((a, b) => a - b);
-    console.log("Nb of NFTs:", ids.length);
-    // console.log("Base URI:", uri);
-    setBaseUri(uri);
-    setNftIds(ids);
-  }
 
   const checkAddress = async () => {
     if (!ethers.utils.isAddress(tmpAddress)) {
@@ -53,37 +36,13 @@ const App = () => {
     }
   }
 
-  const fetchNftMetadata = async (id) => {
-    const uri = baseUri + '' + id;
-    try {
-      const response = await fetch(uri);
-      const metadata = await response.json();
-      return metadata;
-    } catch (error) {
-      console.log(uri, ":", error);
-    }
-  }
-
-  const fetchNftsMetadata = async () => {
-    const metadatas = await Promise.all(nftIds.map(async (id, index) => {
-      const metadata = await fetchNftMetadata(id);
-      return {
-        id: id,
-        image: metadata.image,
-        animation_url: metadata.animation_url,
-        attributes: metadata.attributes,
-      }
-    }));
-    setNftMetadatas(metadatas);
-  }
-
   const renderNftAttributes = (attributes) => {
     return (
       <div className="nft-attributes">
 
         {attributes.map((attribute, index) => {
           return (
-            <div className="nft-attribute">
+            <div className="nft-attribute" key={index}>
               <div className="nft-attribute-type">
                 {attribute.trait_type}
               </div>
@@ -125,12 +84,49 @@ const App = () => {
   }
 
   useEffect(() => {
+    const fetchNftIds = async () => {
+      if (!walletAddress) { return; }
+      console.log("Fetching NFTs for", walletAddress);
+      const provider = new ethers.providers.InfuraProvider(null, INFURA_PROJECT_ID);
+      const contract = new ethers.Contract(VOXIES_CONTRACT_ADDR, contractABI.abi, provider);
+      let uri = await contract.baseURI();
+      let result = await contract.tokensOfOwner(walletAddress);
+      let ids = Array.from(result, r => r.toNumber());
+      ids.sort((a, b) => a - b);
+      console.log("Nb of NFTs:", ids.length);
+      // console.log("Base URI:", uri);
+      setBaseUri(uri);
+      setNftIds(ids);
+    }  
     fetchNftIds();
   }, [walletAddress]);
 
   useEffect(() => {
+    const fetchNftMetadata = async (id) => {
+      const uri = baseUri + '' + id;
+      try {
+        const response = await fetch(uri);
+        const metadata = await response.json();
+        return metadata;
+      } catch (error) {
+        console.log(uri, ":", error);
+      }
+    }
+
+    const fetchNftsMetadata = async () => {
+      const metadatas = await Promise.all(nftIds.map(async (id, index) => {
+        const metadata = await fetchNftMetadata(id);
+        return {
+          id: id,
+          image: metadata.image,
+          animation_url: metadata.animation_url,
+          attributes: metadata.attributes,
+        }
+      }));
+      setNftMetadatas(metadatas);
+    }
     fetchNftsMetadata();
-  }, [nftIds]);
+  }, [nftIds, baseUri]);
 
   return (
     <div className="App">
@@ -152,7 +148,7 @@ const App = () => {
           <span>{errorAddressMsg}</span>
         </div>
         <div className='button-container'>
-          <button className='cta-button nft-button' disabled={loading} onClick={checkAddress}>
+          <button className='cta-button nft-button' onClick={checkAddress}>
             Retrieve NFTs
           </button>
         </div>
