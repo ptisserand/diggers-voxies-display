@@ -79,7 +79,8 @@ const App = () => {
 
   const renderNftAttributes = (attributes) => {
     return (
-      <div>
+      <div className="nft-attributes">
+
         {attributes.map((attribute, index) => {
           return (
             <div className="nft-attribute">
@@ -107,10 +108,8 @@ const App = () => {
               return (
                 <div className="nft-item" key={index}>
                   <div className="nft-col">
-                    <img src={metadata.image} alt={"nft-" + metadata.id} />
-                    <div className="nft-attributes">
+                    <img src={metadata.image} alt={"nft-" + metadata.id} width="500" height="500" />
                     {renderNftAttributes(metadata.attributes)}
-                    </div>
                   </div>
                 </div>
               )
